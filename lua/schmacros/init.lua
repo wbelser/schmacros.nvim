@@ -15,9 +15,9 @@ function M.setup(opts)
 end
 
 function M.list()
-	local message = string.format("=== Macro List ===\n", M.options.name)
-	for index, value in ipairs(M.options) do
-		message += message .. string.format(" %s - %s\n", value.reg, value.desc)
+	local message = "=== Macro List ===\n"
+	for _, value in ipairs(M.options) do
+		message = message .. string.format(" %s - %s\n", value.reg, value.desc)
 	end
 	vim.notify(message, vim.log.levels.INFO)
 end
