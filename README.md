@@ -47,3 +47,31 @@ l - Markdown link
 ```
 
 And most importantly - Learn lua and how to create nvim plugins
+
+# Configuration
+
+```lua
+-- schmacros.nvim -  configuration
+--
+--
+return {
+	{
+		"wbelser/schmacros.nvim",
+		opts = {
+			{
+				reg = "l",
+				macro = "0i[<Esc>A]()<Esc>",
+				desc = "Markdown link",
+				ft = "markdown", -- perhaps a filetype?
+			},
+			{
+				reg = "q",
+				macro = 'yi"<esc>pa"',
+				desc = 'Quote (") visual',
+			},
+		},
+		-- cmd = "HelloWorldDisplay",
+	},
+}
+
+```
