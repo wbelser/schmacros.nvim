@@ -14,7 +14,7 @@ function M.setup(opts)
 	M.options = vim.tbl_deep_extend("force", M.options, opts or {})
 
 	for _, value in ipairs(M.options) do
-		vim.fn.setreg(M.options.reg, vim.api.nvim_replace_termcodes(M.options.macro, true, true, true))
+		vim.fn.setreg(value.reg, vim.api.nvim_replace_termcodes(value.macro, true, true, true))
 	end
 end
 
