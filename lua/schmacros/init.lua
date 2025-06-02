@@ -12,10 +12,14 @@ M.options = {
 -- Setup function that merges user options
 function M.setup(opts)
 	M.options = vim.tbl_deep_extend("force", M.options, opts or {})
+
+	for _, value in ipairs(M.options) do
+		vim.fn.setreg(M.options.reg, vim.api.nvim_replace_termcodes(M.options.macro, true, true, true))
+	end
 end
 
 function M.list()
-	local message = "=== Macro List ===\n"
+	local message = "\n=== Macro List ===\n"
 	for _, value in ipairs(M.options) do
 		message = message .. string.format(" %s - %s\n", value.reg, value.desc)
 	end
