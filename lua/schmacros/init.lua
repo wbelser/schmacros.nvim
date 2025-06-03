@@ -21,28 +21,35 @@ end
 
 -- floating macro list....
 function M.show_macros_floating()
-	local lines = { "=== Macro List ===" }
-	local max_width = #lines[1]
+	local macro_lines = {}
+	local max_width = 0
 
+	-- Build the macro lines and track max width
 	for _, value in ipairs(M.options) do
 		local line = string.format(" %s - %s", value.reg, value.desc)
-		table.insert(lines, line)
+		table.insert(macro_lines, line)
 		if #line > max_width then
 			max_width = #line
 		end
 	end
 
-	local height = #lines
-	local width = max_width + 2
+	-- Centered and padded header
+	local header = "=== Macro List ==="
+	local pad = math.floor((max_width - #header) / 2)
+	local header_line = string.rep(" ", pad) .. header
+	table.insert(macro_lines, 1, header_line)
+
+	local height = #macro_lines
+	local width = max_width + 4 -- some padding
 
 	local buf = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, macro_lines)
 
 	local ui = vim.api.nvim_list_uis()[1]
 	local row = math.floor((ui.height - height) / 2)
 	local col = math.floor((ui.width - width) / 2)
 
-	vim.api.nvim_open_win(buf, true, {
+	local win = vim.api.nvim_open_win(buf, true, {
 		relative = "editor",
 		width = width,
 		height = height,
@@ -51,6 +58,19 @@ function M.show_macros_floating()
 		style = "minimal",
 		border = "rounded",
 	})
+
+	-- Keymaps to close the window
+	vim.keymap.set("n", "q", function()
+		if vim.api.nvim_win_is_valid(win) then
+			vim.api.nvim_win_close(win, true)
+		end
+	end, { buffer = buf, nowait = true, silent = true })
+
+	vim.keymap.set("n", "<Esc>", function()
+		if vim.api.nvim_win_is_valid(win) then
+			vim.api.nvim_win_close(win, true)
+		end
+	end, { buffer = buf, nowait = true, silent = true })
 end
 
 function M.list()
