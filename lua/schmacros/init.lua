@@ -34,13 +34,14 @@ function M.show_macros_floating()
 	end
 
 	-- Centered and padded header
+	local width = max_width + 4 -- some padding
+
 	local header = "=== Macro List ==="
 	local pad = math.max(0, math.floor((width - #header) / 2))
 	local header_line = string.rep(" ", pad) .. header
 	table.insert(macro_lines, 1, header_line)
 
 	local height = #macro_lines
-	local width = max_width + 4 -- some padding
 
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, macro_lines)
