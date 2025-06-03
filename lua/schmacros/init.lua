@@ -35,7 +35,7 @@ function M.show_macros_floating()
 
 	-- Centered and padded header
 	local header = "=== Macro List ==="
-	local pad = math.floor((max_width - #header) / 2)
+	local pad = math.max(0, math.floor((width - #header) / 2))
 	local header_line = string.rep(" ", pad) .. header
 	table.insert(macro_lines, 1, header_line)
 
@@ -73,12 +73,12 @@ function M.show_macros_floating()
 	end, { buffer = buf, nowait = true, silent = true })
 end
 
-function M.list()
-	local message = "\n=== Macro List ===\n"
-	for _, value in ipairs(M.options) do
-		message = message .. string.format(" %s - %s\n", value.reg, value.desc)
-	end
-	vim.notify(message, vim.log.levels.INFO)
-end
-
+-- function M.list()
+-- 	local message = "\n=== Macro List ===\n"
+-- 	for _, value in ipairs(M.options) do
+-- 		message = message .. string.format(" %s - %s\n", value.reg, value.desc)
+-- 	end
+-- 	vim.notify(message, vim.log.levels.INFO)
+-- end
+--
 return M
