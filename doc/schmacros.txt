@@ -1,0 +1,50 @@
+*schmacros.txt*    Plugin to manage macros "schmacros"
+
+==============================================================================
+DESCRIPTION                                                        *schmacros*
+
+This is just a simple and silly attempt to try and understand how you 
+make a neovim plugin and perhaps I could also manage my macros along 
+with this plugin attempt. Mostly created because I create a macro and
+I can never remember exactly where I put it or what it does. So - here 
+we go...
+
+
+==============================================================================
+COMMANDS                                                  *schmacros-commands*
+
+:Schmacros     Show the list of my "schmacros"                     *Schmacros*
+
+==============================================================================
+CONFIGURATION                                              *schmacros-config*
+
+You can configure it using Lazy.nvim like this:
+
+	{
+		"wbelser/schmacros.nvim",
+		opts = {
+            -- macro one --
+			{
+				reg = "l",
+				macro = "0i[<Esc>A]()<Esc>",
+				desc = "Markdown link",
+				ft = "markdown", -- perhaps a filetype?
+			},
+            -- macro two --
+			{
+				reg = "q",
+				macro = 'di"<esc>pa"',
+				desc = 'Quote (") visual',
+			},
+		},
+		-- cmd = "Schmacros",
+	},
+
+
+==============================================================================
+SEE ALSO
+
+:help :helptags     For generating the help index
+:help write-local-help
+
+==============================================================================
