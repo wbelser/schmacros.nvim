@@ -55,7 +55,7 @@ And most importantly - Learn lua and how to create nvim plugins
 
 # Configuration
 
-So I use [https://github.com/folke/lazy.nvimi](lazy.nvim), and a
+So I use [lazy.nvim](https://github.com/folke/lazy.nvim), and a
 plugin file configuration should look something like this
 and be placed where your `init.lua` file find it as
 a plugin:
