@@ -13,7 +13,19 @@ we go...
 ==============================================================================
 COMMANDS                                                  *schmacros-commands*
 
-:Schmacros     Show the list of my "schmacros"                     *Schmacros*
+:Schmacros       Show the list of my "schmacros"                   *Schmacros*
+
+This will let you display all of the managed macros to a popup window
+that you can easly close with "q" or "<esc>"
+
+:SchmacrosYank   Garb a macro from register                    *SchmacrosYank*
+
+This will let you yank a macro from you register by letter:
+
+:SchmacrosYank x
+
+Will yank the macro stored in registry "x" and place it in a 
+system buffer ready for 'pasting'.
 
 ==============================================================================
 CONFIGURATION                                              *schmacros-config*
