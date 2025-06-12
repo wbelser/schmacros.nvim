@@ -17,6 +17,12 @@ function M.setup(opts)
 	for _, value in ipairs(M.options) do
 		vim.fn.setreg(value.reg, vim.api.nvim_replace_termcodes(value.macro, true, true, true))
 	end
+
+	-- set the highlighted group
+	vim.api.nvim_set_hl(0, "SchmacrosHeader", {
+		reverse = true,
+		bold = true,
+	})
 end
 
 -- floating macro list....
@@ -34,11 +40,20 @@ function M.show_macros_floating()
 	end
 
 	-- Centered and padded header
+	-- local header = "=== Macro List ==="
+	local header = " managed schmacros "
 	local width = max_width + 4 -- some padding
+	--
+	-- Properly center the header with spaces for highlighting
+	local pad_total = width - #header
+	local pad_left = math.floor(pad_total / 2)
+	local pad_right = pad_total - pad_left
+	local header_line = string.rep(" ", pad_left) .. header .. string.rep(" ", pad_right)
+	-- local pad = math.max(0, math.floor((width - #header) / 2))
+	-- local header_line = string.rep(" ", pad) .. header
+	-- table.insert(macro_lines, 1, header_line)
 
-	local header = "=== Macro List ==="
-	local pad = math.max(0, math.floor((width - #header) / 2))
-	local header_line = string.rep(" ", pad) .. header
+	-- Insert it into the buffer (we'll do highlighting after)
 	table.insert(macro_lines, 1, header_line)
 
 	local height = #macro_lines
@@ -49,6 +64,9 @@ function M.show_macros_floating()
 	local ui = vim.api.nvim_list_uis()[1]
 	local row = math.floor((ui.height - height) / 2)
 	local col = math.floor((ui.width - width) / 2)
+
+	-- Highlight the first line with reversed colors
+	vim.api.nvim_buf_add_highlight(buf, -1, "SchmacrosHeader", 0, 0, -1)
 
 	local win = vim.api.nvim_open_win(buf, true, {
 		relative = "editor",
