@@ -98,7 +98,7 @@ This will display all of your managed and defined in the setup file _schmacros_.
 :Schmacros
 ```
 
-## SchmacroYank x
+## SchmacrosYank x
 
 So, if you make a cool macro on the fly and want to keep it as a
 managed _schmacro_, I wanted a way to grab about 85% of the correct
