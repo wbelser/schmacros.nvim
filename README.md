@@ -1,124 +1,136 @@
 # Schmacros.Nvim
 
-As much a macro organiser as it is a feeble attempt to play with
-`nvim` plugins and learn `lua`!
+A lightweight Neovim plugin (Lua) for organizing letter-register macros (a–z).
+Configure your macros with a name and description, then pull up a cheat sheet
+anytime to see what's available and what's in use.
 
-# Introduction
+## Features
 
-## My problem
+- **Define macros** with a register letter, key-sequence, and a human-readable description
+- **`:Schmacros`** — Opens a centered floating window showing which letters are free
+  and which are already configured, all in one view
+- **`:SchmacrosYank {reg}`** — Yank an existing register's contents as a formatted
+  Lua config snippet, ready to paste into your lazy.nvim `opts`
+- **No extra keymaps or autocommands** — the plugin stays out of your way until you
+  explicitly call a command
 
-Ok - I am fully aware that macros can easily be handled with a simple
-entry into your `options.lua` file that looks something like:
+## Requirements
 
-```lua
-local macro_md_url = vim.api.nvim_replace_termcodes("0i[<Esc>A]()<Esc>", true, true, true)
-vim.fn.setreg("l", macro_md_url)
-```
+- Neovim 0.7+ (uses `nvim_create_user_command`, `nvim_open_win`, `nvim_replace_termcodes`)
 
-My problem is that I create macros and cannot remember what registry
-I put it in or sometimes even what the macro is/was supposed to
-do. I know - you can just do:
+## Installation
 
-```vim
-:reg
-```
-
-And see everything, but now I have to reread the line and decipher what it
-is doing.
-
-## A solution?
-
-And again, I know that there are other macro managers out there,
-I am just trying to use this as a project to learn a little bit,
-So I thought that is might be cool if I could define some macros
-with a description and be able to also get a _cool_ cheat sheet of
-some kind as a reminder.
-
-You know perhaps have:
+Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-    reg = "l",
-    macro = "0i[<Esc>A]()<Esc>",
-    desc = "Markdown link",
-    ft = "markdown",    -- perhaps a filetype later?
+  "wbelser/schmacros.nvim",
+  opts = {
+    {
+      reg = "l",
+      macro = "0i[<Esc>A]()<Esc>",
+      desc = "Markdown link",
+    },
+    {
+      reg = "q",
+      macro = 'yi"<esc>pa"',
+      desc = 'Quote (") visual',
+    },
+  },
 }
 ```
 
-Then I could get a nice display that could look sometime like:
-
-```output
-l - Markdown link
-```
-
-And most importantly - Learn lua and how to create nvim plugins
-
-# Configuration
-
-So I use [lazy.nvim](https://github.com/folke/lazy.nvim), and a
-plugin file configuration should look something like this
-and be placed where your `init.lua` file find it as
-a plugin:
+Using [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
--- schmacros.nvim -  configuration
---
---
-return {
-	{
-		"wbelser/schmacros.nvim",
-		opts = {
-			{
-				reg = "l",
-				macro = "0i[<Esc>A]()<Esc>",
-				desc = "Markdown link",
-			},
-			{
-				reg = "q",
-				macro = 'yi"<esc>pa"',
-				desc = 'Quote (") visual',
-			},
-		},
-	},
+use {
+  "wbelser/schmacros.nvim",
+  config = function()
+    require("schmacros").setup({
+      {
+        reg = "l",
+        macro = "0i[<Esc>A]()<Esc>",
+        desc = "Markdown link",
+      },
+    })
+  end,
 }
-
 ```
 
-# Commands
+Using Neovim 0.12+ built-in package management (`vim.pack`):
 
-So far I only have two commands but perhaps I will make some more. And
-both of these commands need _tweeking_, they are not 100% the way they
-should be or to my liking. So bear with me...
-
-## Schmacros
-
-This will display all of your managed and defined in the setup file _schmacros_.
-
-```vim
-:Schmacros
+```lua
+vim.pack.add({
+  "https://github.com/wbelser/schmacros.nvim",
+  config = function()
+    require("schmacros").setup({
+      {
+        reg = "l",
+        macro = "0i[<Esc>A]()<Esc>",
+        desc = "Markdown link",
+      },
+    })
+  end,
+})
 ```
 
-## SchmacrosYank x
+## Configuration
 
-So, if you make a cool macro on the fly and want to keep it as a
-managed _schmacro_, I wanted a way to grab about 85% of the correct
-format and have it available to paste into my configuration file
-(`schmacros.nvim`), so this is the function to do that.
+Pass a list of macro entries to `setup()` or lazy.nvim's `opts`. Each entry is a
+table with these fields:
 
-You can always run:
+| Field   | Type     | Required | Description                                    |
+|---------|----------|----------|------------------------------------------------|
+| `reg`   | `string` | Yes      | Single letter a–z                              |
+| `macro` | `string` | Yes      | Key-notation string (e.g. `0i[<Esc>A]()<Esc>`) |
+| `desc`  | `string` | Yes      | Human-readable label shown in `:Schmacros`      |
+| `ft`    | `string` | No       | Filetype filter (reserved, not yet implemented)  |
 
-```vim
-:reg
-```
+On `setup()`, each macro's key-sequence is expanded with `nvim_replace_termcodes`
+and written into the corresponding Neovim register via `setreg()`.
 
-To see what is going on in your registers. Find the register that
-you want to copy or "yank". In this case let's say it is register
-"j", and then call
+## Commands
 
-```vim
-:SchmacrosYank j
-```
+### `:Schmacros`
 
-This will translate the macro to human readable text and place it
-in the "+" register so that it can be 'pasted' into your config
-file with these keys in `normal mode`: `"+p`
+Opens a centered floating window with a rounded border showing two sections:
+
+- **Available slots** — Letters a–z that are not yet configured, displayed in a
+  compact grid (rows of 7). When all 26 registers are used, shows `(none available)`.
+- **In use** — Each configured register with its description, same format as
+  the original display. When no macros are configured, shows `(none configured)`.
+
+Close the window with `q` or `<Esc>`.
+
+### `:SchmacrosYank {reg}`
+
+Reads the raw contents of a Neovim register (`{reg}`), converts it to key notation
+with `keytrans()`, and yanks a ready-to-use Lua config snippet to the `"*` register
+(system clipboard / PRIMARY selection). Supports tab-completion on a–z.
+
+Example workflow:
+
+1. Record a macro on-the-fly with `qa...q`
+2. Run `:SchmacrosYank a`
+3. Paste (`p` in normal mode) the snippet into your config
+4. Restart or re-source to make it managed
+
+## Architecture
+
+All logic lives in a single module: `lua/schmacros/init.lua`.
+
+- **`M.options`** — The canonical macro list (populated during `setup()`). Each
+  entry is written to its register with `setreg()` at startup.
+- **`M.show_macros_floating()`** — Computes available slots (set difference of
+  a–z minus configured registers), builds the two-section display lines, and
+  opens a centered `minimal`-style floating window with a rounded border.
+  Buffer-local keymaps (`q`, `<Esc>`) close the window.
+- **`M.yank_macro(reg)`** — Reads `getreg(reg)`, converts to key notation with
+  `keytrans()`, wraps the result in a Lua table literal, and yanks to `"*`.
+
+The header line uses the `SchmacrosHeader` highlight group (reversed + bold),
+set during `setup()`.
+
+## License
+
+MIT

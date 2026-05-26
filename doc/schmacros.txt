@@ -13,10 +13,11 @@ we go...
 ==============================================================================
 COMMANDS                                                  *schmacros-commands*
 
-:Schmacros       Show the list of my "schmacros"                   *Schmacros*
+:Schmacros       Show available and in-use registers          *Schmacros*
 
-This will let you display all of the managed macros to a popup window
-that you can easly close with "q" or "<esc>"
+Opens a centered floating window showing which letter registers (a-z)
+are available and which are already configured as macros.
+Close with "q" or "<Esc>".
 
 :SchmacrosYank   Garb a macro from register                    *SchmacrosYank*
 

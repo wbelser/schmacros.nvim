@@ -25,60 +25,96 @@ function M.setup(opts)
 	})
 end
 
--- floating macro list....
 function M.show_macros_floating()
-	local macro_lines = {}
-	local max_width = 0
+	local all_letters = {}
+	for i = string.byte("a"), string.byte("z") do
+		table.insert(all_letters, string.char(i))
+	end
 
-	-- Build the macro lines and track max width
-	for _, value in ipairs(M.options) do
-		local line = string.format(" %s - %s", value.reg, value.desc)
-		table.insert(macro_lines, line)
+	local used_set = {}
+	for _, v in ipairs(M.options) do
+		used_set[v.reg] = true
+	end
+
+	local available = {}
+	for _, letter in ipairs(all_letters) do
+		if not used_set[letter] then
+			table.insert(available, letter)
+		end
+	end
+
+	local available_rows = {}
+	local row = {}
+	for i, letter in ipairs(available) do
+		table.insert(row, letter)
+		if #row == 7 or i == #available then
+			table.insert(available_rows, table.concat(row, "  "))
+			row = {}
+		end
+	end
+
+	local lines = {}
+
+	table.insert(lines, "Available slots:")
+	if #available_rows > 0 then
+		for _, r in ipairs(available_rows) do
+			table.insert(lines, "  " .. r)
+		end
+	else
+		table.insert(lines, "  (none available)")
+	end
+
+	table.insert(lines, "")
+
+	table.insert(lines, "In use:")
+	if #M.options > 0 then
+		for _, v in ipairs(M.options) do
+			table.insert(lines, string.format("  %s - %s", v.reg, v.desc))
+		end
+	else
+		table.insert(lines, "  (none configured)")
+	end
+
+	local max_width = 0
+	for _, line in ipairs(lines) do
 		if #line > max_width then
 			max_width = #line
 		end
 	end
 
-	-- Centered and padded header
-	-- local header = "=== Macro List ==="
-	local header = " managed schmacros "
-	local width = max_width + 4 -- some padding
-	--
-	-- Properly center the header with spaces for highlighting
+	local header = " available schmacros "
+	local width = max_width + 4
 	local pad_total = width - #header
 	local pad_left = math.floor(pad_total / 2)
 	local pad_right = pad_total - pad_left
 	local header_line = string.rep(" ", pad_left) .. header .. string.rep(" ", pad_right)
-	-- local pad = math.max(0, math.floor((width - #header) / 2))
-	-- local header_line = string.rep(" ", pad) .. header
-	-- table.insert(macro_lines, 1, header_line)
+	local separator = string.rep("─", width)
 
-	-- Insert it into the buffer (we'll do highlighting after)
-	table.insert(macro_lines, 1, header_line)
+	local macro_lines = { header_line, separator }
+	for _, line in ipairs(lines) do
+		table.insert(macro_lines, line)
+	end
 
 	local height = #macro_lines
-
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, macro_lines)
 
 	local ui = vim.api.nvim_list_uis()[1]
-	local row = math.floor((ui.height - height) / 2)
-	local col = math.floor((ui.width - width) / 2)
+	local row_win = math.floor((ui.height - height) / 2)
+	local col_win = math.floor((ui.width - width) / 2)
 
-	-- Highlight the first line with reversed colors
 	vim.api.nvim_buf_add_highlight(buf, -1, "SchmacrosHeader", 0, 0, -1)
 
 	local win = vim.api.nvim_open_win(buf, true, {
 		relative = "editor",
 		width = width,
 		height = height,
-		row = row,
-		col = col,
+		row = row_win,
+		col = col_win,
 		style = "minimal",
 		border = "rounded",
 	})
 
-	-- Keymaps to close the window
 	vim.keymap.set("n", "q", function()
 		if vim.api.nvim_win_is_valid(win) then
 			vim.api.nvim_win_close(win, true)
